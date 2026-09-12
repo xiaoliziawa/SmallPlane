@@ -5,13 +5,6 @@ import net.neoforged.neoforgespi.earlywindow.GraphicsBootstrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Points NeoForge at {@link SmallPlaneWindowProvider} before it picks the early loading screen.
- * <p>
- * FML resolves the provider by the name stored in its config, and graphics bootstrappers are the
- * only hook that runs before that lookup. A provider configured by someone else is left alone, and
- * {@code -Dsmallplane.earlyWindow=false} disables the takeover entirely.
- */
 public final class SmallPlaneBootstrap implements GraphicsBootstrapper {
     private static final Logger LOGGER = LoggerFactory.getLogger(SmallPlaneBootstrap.class);
     private static final String ENABLED_PROPERTY = "smallplane.earlyWindow";

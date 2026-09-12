@@ -21,25 +21,14 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Replaces the Mojang logo of the early loading screen with a destructible version of it.
- * <p>
- * The logo is drawn as a grid of cells instead of the two quads vanilla uses, so individual cells
- * can be shot away. All surviving cells are still submitted as a single draw call. Cells that hold
- * no visible pixels are never drawn and cannot be hit.
- */
 final class LogoTarget extends RenderElement {
     private static final Logger LOGGER = LoggerFactory.getLogger(LogoTarget.class);
 
-    /** The logo is shipped with the game, not with the theme, exactly like the vanilla element. */
     private static final String LOGO_PATH = "assets/minecraft/textures/gui/title/mojangstudios.png";
-    /** Intrinsic size the vanilla layout resolves the logo against. */
+
     private static final int LOGO_LAYOUT_WIDTH = 512;
     private static final int LOGO_LAYOUT_HEIGHT = 128;
-    /**
-     * The texture stores the logo as two stacked halves that are drawn side by side, so the grid is
-     * split into a left and a right half as well.
-     */
+
     private static final int COLUMNS_PER_HALF = 32;
     private static final int ROWS = 16;
     private static final int COLUMNS = COLUMNS_PER_HALF * 2;
@@ -47,7 +36,7 @@ final class LogoTarget extends RenderElement {
     private static final int ALPHA_OFFSET = 3;
     private static final int BYTES_PER_PIXEL = 4;
     private static final int OPAQUE_ALPHA = 128;
-    /** A cell counts as a target once this many of its texture pixels are opaque. */
+
     private static final int OPAQUE_PIXELS_PER_TARGET = 8;
     private static final int LOGO_COLOR = 0xFFFFFFFF;
 
@@ -116,13 +105,6 @@ final class LogoTarget extends RenderElement {
         batch.draw();
     }
 
-    /**
-     * Destroys the first cell hit by a bullet that travelled upwards from {@code fromY} to
-     * {@code toY} during one frame. A single frame can cover more than one cell, so the whole
-     * segment is tested instead of just its end, otherwise fast bullets tunnel through cells.
-     *
-     * @return the index of the cell that was destroyed, or {@code -1} when nothing was hit
-     */
     int shoot(float x, float fromY, float toY) {
         if (texture == null || x < bounds.left() || x >= bounds.right()) {
             return -1;

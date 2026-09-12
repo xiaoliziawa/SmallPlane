@@ -9,13 +9,6 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Translations for the early loading screen.
- * <p>
- * Minecraft's language system does not exist yet while the early window is up, so the strings live
- * in plain property files inside the mod jar. The early font only bakes ASCII glyphs, so
- * translations outside that range cannot be displayed.
- */
 final class EarlyText {
     static final String KEY_PRESS_ENTER = "smallplane.early.press_enter";
     static final String KEY_WINDOW_TITLE = "smallplane.early.window_title";

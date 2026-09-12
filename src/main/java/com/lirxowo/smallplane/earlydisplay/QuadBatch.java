@@ -2,10 +2,6 @@ package com.lirxowo.smallplane.earlydisplay;
 
 import net.neoforged.fml.earlydisplay.render.SimpleBufferBuilder;
 
-/**
- * Emits axis aligned quads into the shared vertex buffer of the early loading screen.
- * All quads written between {@link #begin()} and {@link #draw()} end up in a single draw call.
- */
 final class QuadBatch {
     private final SimpleBufferBuilder buffer;
 

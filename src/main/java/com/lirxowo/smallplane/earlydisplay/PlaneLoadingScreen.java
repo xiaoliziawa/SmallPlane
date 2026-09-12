@@ -42,13 +42,6 @@ import org.lwjgl.opengl.GL32C;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Renders the early loading screen, including the mini game on top of it.
- * <p>
- * This mirrors the structure of NeoForge's own {@link LoadingScreenRenderer}: the screen is drawn
- * into a fixed size framebuffer that is then fitted onto the window. Rendering runs on a background
- * thread while mods are loading and moves to the main thread once the window is handed over.
- */
 final class PlaneLoadingScreen implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(PlaneLoadingScreen.class);
 
@@ -57,7 +50,6 @@ final class PlaneLoadingScreen implements AutoCloseable {
     private static final long RENDER_INTERVAL_MS = 16L;
     private static final long ANIMATION_INTERVAL_MS = 50L;
     private static final long CONTEXT_HANDOVER_TIMEOUT_SECONDS = 5L;
-    /** While nothing is going on the screen is as lazy as vanilla; the mini game wants more frames. */
     private static final long IDLE_FRAME_INTERVAL_NANOS = TimeUnit.MILLISECONDS.toNanos(50);
     private static final long ACTIVE_FRAME_INTERVAL_NANOS = TimeUnit.MILLISECONDS.toNanos(RENDER_INTERVAL_MS);
 
@@ -110,10 +102,6 @@ final class PlaneLoadingScreen implements AutoCloseable {
         scheduler.scheduleWithFixedDelay(() -> animationFrame++, ANIMATION_INTERVAL_MS, ANIMATION_INTERVAL_MS, TimeUnit.MILLISECONDS);
     }
 
-    /**
-     * Draws one frame. Releases the GL context afterwards as long as the background thread still
-     * owns it, so it may be called from the main thread once automatic rendering has stopped.
-     */
     void renderToScreen() {
         if (!renderLock.tryAcquire()) {
             return;
@@ -205,7 +193,6 @@ final class PlaneLoadingScreen implements AutoCloseable {
         GlState.applySnapshot(backup);
     }
 
-    /** Stops rendering on the background thread so the GL context can move to the main thread. */
     void stopAutomaticRendering() throws TimeoutException, InterruptedException {
         if (automaticRendering.isCancelled()) {
             return;

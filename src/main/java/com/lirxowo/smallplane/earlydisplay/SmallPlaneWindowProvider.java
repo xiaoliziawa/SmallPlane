@@ -36,16 +36,6 @@ import org.lwjgl.opengl.GL32C;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Early loading screen that adds a hidden mini game to the regular NeoForge one.
- * <p>
- * It extends {@link DisplayWindow} so NeoForge keeps treating it as its own loading screen - most
- * importantly it is still closed once mod loading finished - but it owns its window, its render
- * thread and its renderer, because the vanilla renderer cannot be extended with own content.
- * <p>
- * If the plane has been summoned by the time Minecraft asks for the window, the hand over is held
- * back and the mini game keeps running on the main thread until the player presses enter.
- */
 public final class SmallPlaneWindowProvider extends DisplayWindow {
     static final String PROVIDER_NAME = "smallplane";
     static final String FML_PROVIDER_NAME = "fmlearlywindow";
@@ -60,7 +50,6 @@ public final class SmallPlaneWindowProvider extends DisplayWindow {
     private static final String OPTIONS_FILE = "options.txt";
     private static final String THEME_DIRECTORY = "fml";
     private static final String DARK_MODE_PROPERTY = "fml.earlyWindowDarkMode";
-    /** Vanilla never sets these, so GLFW would otherwise use our window title as the X11 class. */
     private static final String WINDOW_CLASS_NAME = "Minecraft*";
     private static final String RENDER_THREAD_NAME = "smallplane-loadingscreen";
 
@@ -93,7 +82,7 @@ public final class SmallPlaneWindowProvider extends DisplayWindow {
     private volatile boolean handoffGateDisabled;
 
     public SmallPlaneWindowProvider() {
-        // DisplayWindow's constructor just appended the progress bar that this provider drives.
+
         mainProgress = StartupNotificationManager.getCurrentProgress().getLast();
     }
 
@@ -199,10 +188,6 @@ public final class SmallPlaneWindowProvider extends DisplayWindow {
         }
     }
 
-    /**
-     * Compositing the early screen into Minecraft is not supported: the framebuffer texture of the
-     * NeoForge renderer is not accessible from outside its package, and nothing calls this.
-     */
     @Override
     public int getFramebufferTextureId() {
         return 0;
@@ -226,7 +211,6 @@ public final class SmallPlaneWindowProvider extends DisplayWindow {
         restoreDefaultProvider();
     }
 
-    /** Keeps the mini game alive on the main thread until the player presses enter. */
     private void awaitPlayer(PlaneLoadingScreen screen) {
         game.holdHandoff();
         GLFW.glfwSwapInterval(1);
@@ -252,7 +236,7 @@ public final class SmallPlaneWindowProvider extends DisplayWindow {
             throw new IllegalStateException("The early loading screen failed to initialize", e.getCause());
         } catch (TimeoutException e) {
             crash("The early loading screen did not start within " + RENDERER_TIMEOUT_SECONDS + " seconds.");
-            throw new IllegalStateException(e); // crash() never returns
+            throw new IllegalStateException(e);
         }
     }
 
@@ -350,7 +334,7 @@ public final class SmallPlaneWindowProvider extends DisplayWindow {
                 }
             });
         } catch (NoSuchFileException ignored) {
-            // First start, everything stays at its default.
+
         } catch (IOException e) {
             LOGGER.warn("Failed to read {}", OPTIONS_FILE, e);
         }
@@ -392,23 +376,12 @@ public final class SmallPlaneWindowProvider extends DisplayWindow {
         return label.toString();
     }
 
-    /**
-     * Leaves the NeoForge default in the config file. The bootstrapper points it back at us on every
-     * start, so removing this mod cannot leave the game without a loading screen.
-     */
     private void restoreDefaultProvider() {
         if (PROVIDER_NAME.equals(FMLConfig.getConfigValue(FMLConfig.ConfigValue.EARLY_WINDOW_PROVIDER))) {
             FMLConfig.updateConfig(FMLConfig.ConfigValue.EARLY_WINDOW_PROVIDER, FML_PROVIDER_NAME);
         }
     }
 
-    /**
-     * FML constructs every {@link net.neoforged.neoforgespi.earlywindow.ImmediateWindowProvider} it
-     * can find before it picks one by name, and each of them registers a progress bar in its
-     * constructor. The bars of the providers that were not picked are never updated and would show
-     * up as a second, endlessly bouncing bar, so they are dropped here - by this point every
-     * provider has been constructed.
-     */
     private void discardUnusedProgressBars() {
         for (ProgressMeter bar : StartupNotificationManager.getCurrentProgress()) {
             if (bar != mainProgress && bar.name().isEmpty() && bar.steps() == 0) {

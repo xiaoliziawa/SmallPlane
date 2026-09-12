@@ -14,20 +14,12 @@ import net.neoforged.fml.earlydisplay.theme.ThemeColor;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-/**
- * The mini game that can be summoned on the early loading screen by double tapping space.
- * <p>
- * Key events are handed over from the main thread through a queue; everything else happens on the
- * thread that currently owns the GL context, which is the loading screen renderer thread until the
- * window is handed over to Minecraft and the main thread afterwards.
- */
 final class PlaneGame {
     private static final String SPRITE_RESOURCE = "/smallplane/sprites/plane.spr";
 
     private static final long DOUBLE_TAP_WINDOW_NANOS = TimeUnit.MILLISECONDS.toNanos(350);
     private static final long SHOT_INTERVAL_NANOS = TimeUnit.MILLISECONDS.toNanos(150);
     private static final long DEBRIS_LIFETIME_NANOS = TimeUnit.MILLISECONDS.toNanos(900);
-    /** Keeps the simulation sane when the renderer was stalled by a long loading step. */
     private static final float MAX_STEP_SECONDS = 0.1f;
     private static final float NANOS_PER_SECOND = 1_000_000_000f;
 
@@ -52,7 +44,6 @@ final class PlaneGame {
     private static final int MAX_ALPHA = 255;
 
     private static final float PROMPT_TOP = 362f;
-    /** Pre-baked hue wheel so the marquee does not build colors while rendering. */
     private static final int RAINBOW_STEPS = 120;
     private static final int RAINBOW_STEPS_PER_CHARACTER = 4;
     private static final long RAINBOW_CYCLE_NANOS = TimeUnit.MILLISECONDS.toNanos(2200);
@@ -105,7 +96,6 @@ final class PlaneGame {
         this.lastUpdateNanos = now;
     }
 
-    /** Called from the GLFW key callback, which runs on the main thread. */
     void onKey(int key, int action) {
         if (plane != null && action != GLFW.GLFW_REPEAT) {
             pendingKeys.add(new int[] { key, action });
@@ -116,7 +106,6 @@ final class PlaneGame {
         return summoned;
     }
 
-    /** Blocks the hand over to Minecraft until the player presses enter. */
     void holdHandoff() {
         holdingHandoff = true;
     }
@@ -166,7 +155,6 @@ final class PlaneGame {
         }
     }
 
-    /** Draws the prompt as a rainbow marquee whose characters ride a sine wave. */
     private void renderPrompt(RenderContext context, SimpleFont font) {
         if (promptCharacters == null) {
             layOutPrompt(font);
@@ -221,7 +209,7 @@ final class PlaneGame {
                     }
                 }
                 default -> {
-                    // Every other key belongs to the game that is still loading.
+
                 }
             }
         }
